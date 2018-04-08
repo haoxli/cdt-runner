@@ -1,0 +1,46 @@
+{
+    "name": "cdt-runner",
+    "version": "0.0.1",
+    "scripts": {
+        "prepare": "tsc",
+        "build": "tsc",
+        "lint": "tslint -p .",
+        "test": "jest",
+        "test:watch": "jest --watch"
+    },
+    "license": "Apache-2.0",
+    "dependencies": {
+        "jest": "^22.3.0",
+        "jest-puppeteer": "^2.2.1",
+        "puppeteer": "^1.2.0"
+    },
+    "devDependencies": {
+        "@types/jest": "^22.1.2",
+        "@types/puppeteer": "^1.2.0",
+        "ts-jest": "^22.0.4",
+        "tslint": "^5.9.1",
+        "tslint-config-standard": "^7.0.0",
+        "typescript": "^2.7.1"
+    },
+    "jest": {
+        "transform": {
+            "^.+\\.tsx?$": "ts-jest"
+        },
+        "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js",
+            "jsx",
+            "json",
+            "node"
+        ],
+        "globals": {
+            "ts-jest": {
+                "enableTsDiagnostics": true
+            }
+        },
+        "rootDir": "src",
+        "preset": "jest-puppeteer"
+    }
+}
