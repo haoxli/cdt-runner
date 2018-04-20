@@ -19,20 +19,30 @@ import puppeteer from 'puppeteer';
 
 export type Browser = puppeteer.Browser;
 export type Page = puppeteer.Page;
+export type Mouse = puppeteer.Mouse;
 
 export class PuppeteerHelper {
+  // global setup temp
   public PUPP_DIR: string = path.join(os.tmpdir(), 'jest_puppeteer_global_setup');
   public WS_ENDPOINT_PATH: string = path.join(this.PUPP_DIR, 'wsEndpoint');
-
+  
+  /* Get browser instance 
+   * retrun: <Browser> Browser instance reated by jest_puppeteer_global_setup
+   */
   async getBrowser() {
     let wsEndpoint = fs.readFileSync(this.WS_ENDPOINT_PATH, 'utf8');
     const browser: Browser = await puppeteer.connect({ browserWSEndpoint: wsEndpoint });
     return browser;
   }
 
+  /* Return Page instance created by jest_puppeteer_global_setup,
+   * or return a new page if no available.
+   * browser: <Browser> Browser object
+   * return: <Page> The last opened page object, create new page if no page avaliable
+   */ 
   async getPage(browser: Browser) {
     let pages = await browser.pages();
-    // FIXME: Sometimes get incorrect active page
+    // FIXME: Sometimes get incorrect active page, seems that pages are not in order
     return pages.length > 0 ? pages[pages.length - 1] : await browser.newPage();
   }
 }

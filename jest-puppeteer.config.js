@@ -14,6 +14,7 @@
 
 module.exports = {
     launch: {
+        // args: ['--remote-debugging-port=9222'],
         headless: process.env.CI === 'true',
         slowMo: true, // slow down
     },
