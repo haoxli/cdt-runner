@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module.exports = {
-    launch: {
-        // args: ['--remote-debugging-port=9222'],
-        executablePath: 'chromium-browser', // Chromium 65
-        headless: process.env.CI === 'true',
-        slowMo: true, // slow down
-    },
+const LIUNX_SEP: string = '/';
+
+export function getScriptFolder(script: string): string {
+  if (script.indexOf(LIUNX_SEP) === -1) return '';
+  return script.substr(0, script.lastIndexOf(LIUNX_SEP));
+}
+
+export function getScriptName(script: string): string {
+  let arr = script.split(LIUNX_SEP);
+  return arr[arr.length - 1];
 }
