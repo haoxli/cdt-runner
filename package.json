@@ -1,12 +1,12 @@
 {
-    "name": "cdt-runner",
+    "name": "jrs-debugger-tests",
     "version": "0.0.1",
     "scripts": {
         "prepare": "tsc",
         "build": "tsc",
         "lint": "tslint -p .",
-        "test": "jest",
-        "test:watch": "jest --watch"
+        "test": "jest -i",
+        "test:watch": "jest -i --watch"
     },
     "license": "Apache-2.0",
     "dependencies": {
@@ -20,7 +20,8 @@
         "ts-jest": "^22.0.4",
         "tslint": "^5.9.1",
         "tslint-config-standard": "^7.0.0",
-        "typescript": "^2.7.1"
+        "typescript": "^2.7.1",
+        "jest-json-reporter": "^1.2.2"
     },
     "jest": {
         "transform": {
@@ -41,6 +42,10 @@
             }
         },
         "rootDir": "src",
-        "preset": "jest-puppeteer"
+        "preset": "jest-puppeteer",
+        "testResultsProcessor": "jest-json-reporter"
+    },
+    "jestJsonReporter": {
+        "outputFile": "./test-results.json"
     }
 }

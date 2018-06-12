@@ -12,19 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {  Browser, Page, JSHandle  } from "puppeteer";
+import { Browser, Page, JSHandle, ElementHandle } from 'puppeteer';
 import { PuppeteerHelper } from './puppeteer-helper';
 
 export interface Coordinate {
-  x: number,
-  y: number
+  x: number;
+  y: number;
 }
 
 export class CDTController {
   public browser: Browser;
   public page: Page;
-  public ndtPage: Page;
   private puppet: PuppeteerHelper;
+  private panelSelectors: { [key: string]: string; } = {
+    'Console' : 'console',
+    'Sources' : 'sources',
+    'Memory'  : 'heap_profiler',
+    'Profiler': 'js_profiler',
+  };
 
   async init() {
     this.puppet = new PuppeteerHelper();
@@ -32,31 +37,37 @@ export class CDTController {
     this.page = await this.puppet.getPage(this.browser);
   }
 
-  async inspect() {
-    await this.page.goto('chrome://inspect');
+  async inspect(page: Page) {
+    await page.goto('chrome://inspect');
+    return page;
   }
 
   async getNDTPage(browser: Browser): Promise<Page> {
-    await this.inspect();
+    let ndtPage: Page;
+    await this.inspect(this.page);
     await this.page.click('div [id="node-frontend"]');
     await this.page.waitFor(500);
-    // const client = await this.page.target().createCDPSession();
-    // await client.send('Debugger.enable');
-    // await client.on('Debugger.scriptParsed', script => console.log(">>>" + script.scriptId));
     let targets = await browser.targets();
     for (let target of targets) {
-      this.ndtPage = await target.page();
-      if (!!this.ndtPage
-          && this.ndtPage.url().indexOf('node_app.html') !== -1) break;
+      let p = await target.page();
+      if (p && p.url().indexOf('chrome-devtools-frontend') >= 0) {
+        ndtPage = p;
+        break;
+      }
     }
-    return this.ndtPage;
+    if (!ndtPage) throw new Error('Fail to get devtools page for Node.js');
+    return ndtPage;
   }
 
-  async switchTab(selector: string){
-    let paneHandle = await this.ndtPage.$('.tabbed-pane');
-    const result = await this.evaluateHandleWithShadowRoot(this.ndtPage, paneHandle, selector)
-    const consoleElement = result.asElement();
-    await consoleElement.click();
+  async switchTab(ndtPage: Page, selector: string) {
+    let paneHandle = await ndtPage.$('.tabbed-pane');
+    const result = await this.evaluateHandleWithShadowRoot(ndtPage, paneHandle, selector);
+    if (result) {
+      const consoleElement = result.asElement();
+      await consoleElement.click();
+    } else {
+      throw new Error('No tab is found for ' + selector);
+    }
   }
 
   /* Query element in ShadowRoot
@@ -65,8 +76,8 @@ export class CDTController {
    * selector: <string> A selector of an element to query
    * return: Promise<JSHandle> A element JS handle matching selector, or null if no matched element
    */
-  async evaluateHandleWithShadowRoot(page: Page, handle: JSHandle, selector: string): Promise<JSHandle> {
-    return await page.evaluateHandle((handle, selector) => handle.shadowRoot.querySelector(selector), handle, selector);
+  evaluateHandleWithShadowRoot(page: Page, handle: JSHandle, selector: string): Promise<JSHandle> {
+    return page.evaluateHandle((handle, selector) => handle.shadowRoot.querySelector(selector), handle, selector);
   }
 
   /* Evaluate element coordinate in page doucment
@@ -75,8 +86,8 @@ export class CDTController {
    * return: Promise<Coordinate> The coordinate of element with x, y
    */
   async evaluateElementCoordinate(page: Page, handle: JSHandle): Promise<Coordinate> {
-    return await page.evaluate(handle => {
-      let coordinate: Coordinate = {x: 0, y: 0};
+    return page.evaluate(handle => {
+      let coordinate: Coordinate = { x: 0, y: 0 };
       // element rectagle
       let rect: ClientRect = handle.getBoundingClientRect();
       // document scroll offset
@@ -97,5 +108,12 @@ export class CDTController {
     await page.mouse.click(coordinate.x + offset, coordinate.y + offset);
   }
 
-
+  async getPanelHandle(ndtPage: Page, panel: string): Promise<ElementHandle> {
+    let selector = '.view-container > .' + this.panelSelectors[panel];
+    await ndtPage.waitForSelector(selector);
+    return ndtPage.$(selector).then(handle => {
+      if (!handle) throw new Error('No element is selected for ' + panel);
+      return handle;
+    });
+  }
 }

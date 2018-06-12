@@ -14,7 +14,7 @@ $ yarn install
 ```
 
 ## Pre-condition
-
+https://github.com/intel/zephyr.js#debugging-javascript-code-on-linux 
 
 ## Running tests
 
