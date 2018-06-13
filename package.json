@@ -12,7 +12,7 @@
     "dependencies": {
         "jest": "^22.3.0",
         "jest-puppeteer": "^2.2.1",
-        "puppeteer": "^1.2.0"
+        "puppeteer": "~1.4.0"
     },
     "devDependencies": {
         "@types/jest": "^22.1.2",

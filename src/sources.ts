@@ -58,7 +58,14 @@ export class Sources extends CDTController {
     // selector for script line
     let selector = 'div.CodeMirror-linenumber';
     let sourceHandle = await this.getSourceCode();
-    let lineHandle = await sourceHandle.$$(selector).then(lines => lines[line - 1]);
+    let lines = await sourceHandle.$$(selector);
+    let lineHandle = null;
+    for (let i in lines) {
+      let html = await this.ndtPage.evaluate(handle => handle.innerHTML, lines[i]);
+      if (Number(html) === line) {
+        lineHandle = lines[i];
+      }
+    }
     // return line's parent node
     return this.ndtPage.evaluateHandle(handle => handle.parentNode, lineHandle);
   }
