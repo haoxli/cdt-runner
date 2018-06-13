@@ -17,47 +17,47 @@ import { Sources } from '../sources';
 const runner = new Sources();
 
 describe('Step into and out', () => {
-  const test = 'tests/test-buffer.js';
+  const test = 'js.tmp';
 
   beforeAll(async () => {
     await runner.init();
   });
 
-  it('test step into definition', async () => {
-    await runner.clickDebugBtn('StepInto');
-    let result = await runner.isExectionLine(6);
-    expect(result).toBe(true);
-  });
-
+  // On K64F, module code is merged together with script code.
   it('test step into moudle', async () => {
     await runner.clickDebugBtn('StepInto');
     let tab = await runner.getTabbedScriptName();
-    expect(tab).toMatch('untitled');
+    expect(test).toMatch(tab);
     let list = await runner.getCallStackList();
     expect(list.length).toEqual(2);
   });
 
   it('test step out moudle', async () => {
     await runner.clickDebugBtn('StepOut');
-    let tab = await runner.getTabbedScriptName();
-    expect(test).toMatch(tab);
     let list = await runner.getCallStackList();
     expect(list.length).toEqual(1);
-    let result = await runner.isExectionLine(11);
+    let result = await runner.isExectionLine(53);
+    expect(result).toBe(true);
+  });
+
+  it('test step into definition', async () => {
+    await runner.clickDebugBtn('StepInto');
+    let result = await runner.isExectionLine(55);
     expect(result).toBe(true);
   });
 
   it('test step out definition', async () => {
     await runner.clickDebugBtn('StepOut');
-    let result = await runner.isExectionLine(12);
+    let result = await runner.isExectionLine(60);
     expect(result).toBe(true);
   });
 
   it('test step into function', async () => {
     await runner.clickDebugBtn('StepInto');
     await runner.clickDebugBtn('StepInto');
+    await runner.clickDebugBtn('StepInto');
     let tab = await runner.getTabbedScriptName();
-    expect(tab).toMatch('untitled');
+    expect(test).toMatch(tab);
     let result = await runner.isExectionLine(8);
     expect(result).toBe(true);
   });
@@ -74,14 +74,14 @@ describe('Step into and out', () => {
     await runner.clickDebugBtn('StepOut');
     let tab = await runner.getTabbedScriptName();
     expect(test).toMatch(tab);
-    let result = await runner.isExectionLine(15);
+    let result = await runner.isExectionLine(64);
     expect(result).toBe(true);
   });
 
   it('test step out function', async () => {
     await runner.clickDebugBtn('StepInto');
     await runner.clickDebugBtn('StepOut');
-    let result = await runner.isExectionLine(18);
+    let result = await runner.isExectionLine(67);
     expect(result).toBe(true);
   });
 
@@ -90,26 +90,26 @@ describe('Step into and out', () => {
     await runner.clickDebugBtn('StepInto');
     await runner.clickDebugBtn('StepOut');
     let tab = await runner.getTabbedScriptName();
-    expect(tab).toMatch('untitled');
+    expect(test).toMatch(tab);
     await runner.clickDebugBtn('StepOut');
-    let result = await runner.isExectionLine(25);
+    let result = await runner.isExectionLine(74);
     expect(result).toBe(true);
   });
 
   it('test step into loop statement', async () => {
     await runner.clickDebugBtn('StepInto');
     await runner.clickDebugBtn('StepInto');
-    let result = await runner.isExectionLine(27);
+    let result = await runner.isExectionLine(76);
     expect(result).toBe(true);
     await runner.clickDebugBtn('StepInto');
     await runner.clickDebugBtn('StepInto');
     await runner.clickDebugBtn('StepOut');
-    let result2 = await runner.isExectionLine(27);
+    let result2 = await runner.isExectionLine(76);
     expect(result2).toBe(true);
     await runner.clickDebugBtn('StepInto');
     await runner.clickDebugBtn('StepInto');
     await runner.clickDebugBtn('StepOut');
-    let result3 = await runner.isExectionLine(27);
+    let result3 = await runner.isExectionLine(76);
     expect(result3).toBe(true);
   });
 
@@ -120,7 +120,7 @@ describe('Step into and out', () => {
     await runner.clickDebugBtn('StepInto');
     await runner.clickDebugBtn('StepInto');
     await runner.clickDebugBtn('StepOut');
-    let result2 = await runner.isExectionLine(33);
+    let result2 = await runner.isExectionLine(82);
     expect(result2).toBe(true);
   });
 });

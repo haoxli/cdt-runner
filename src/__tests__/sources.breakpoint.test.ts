@@ -16,7 +16,8 @@ import { Sources } from '../sources';
 import { getScriptName } from '../utils';
 
 const runner = new Sources();
-const test = 'tests/test-buffer.js';
+// Test name with FRMD-K64F
+const test = 'js.tmp';
 
 describe('Sources', () => {
   beforeAll(async () => {
@@ -33,9 +34,18 @@ describe('Sources', () => {
 });
 
 describe('Breakpoint', () => {
-  const blankLine = 2;
-  const commentLine = 3;
-  const codeLine = 11;
+  const blankLine = 51;
+  const commentLine = 52;
+  const codeLine = 60;
+
+  afterAll(async () => {
+    let result = await runner.hasBreakpoint(codeLine);
+    if (result) await runner.removeBreakpoint(codeLine);
+    let result2 = await runner.hasBreakpoint(codeLine + 1);
+    if (result2) await runner.removeBreakpoint(codeLine + 1);
+    let result3 = await runner.hasBreakpoint(codeLine + 2);
+    if (result3) await runner.removeBreakpoint(codeLine + 2);
+  });
 
   it('test add breakpoint in code', async () => {
     let result = await runner.addBreakpoint(codeLine);
@@ -157,7 +167,7 @@ describe('Breakpoint', () => {
 });
 
 describe('Sources reopen', () => {
-  let codeLine = 18;
+  let codeLine = 67;
 
   beforeAll(async () => {
     await runner.addBreakpoint(codeLine);
@@ -168,6 +178,15 @@ describe('Sources reopen', () => {
     await runner.clickDebugBtn('Deactivate');
     await runner.ndtPage.close();
     await runner.reopenSourceScript();
+  });
+
+  afterAll(async () => {
+    let result = await runner.hasBreakpoint(codeLine);
+    if (result) await runner.removeBreakpoint(codeLine);
+    let result2 = await runner.hasBreakpoint(codeLine + 1);
+    if (result2) await runner.removeBreakpoint(codeLine + 1);
+    let result3 = await runner.hasBreakpoint(codeLine + 2);
+    if (result3) await runner.removeBreakpoint(codeLine + 2);
   });
 
   it('test source script remains when reopen devtools', async () => {

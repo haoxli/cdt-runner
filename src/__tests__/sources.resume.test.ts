@@ -17,11 +17,11 @@ import { Sources } from '../sources';
 const runner = new Sources();
 
 describe('Resume', () => {
-  let firstLine = 4;
-  let breakpointLine = 11;
-  let disabledBreakpointLine = 12;
-  let removedBreakpointLine = 18;
-  let deactivatedLine = 25;
+  let firstLine = 48;
+  let breakpointLine = 60;
+  let disabledBreakpointLine = 61;
+  let removedBreakpointLine = 67;
+  let deactivatedLine = 74;
 
   beforeAll(async () => {
     await runner.init();
@@ -82,6 +82,14 @@ describe('Resume', () => {
   });
 
   it('test resume stop after end of debugging', async () => {
+    // stop resume if pre test failed
+    let flag = true;
+    while (flag) {
+      await runner.clickDebugBtn('Resume');
+      let resume = await runner.getDebugBtnState('Resume');
+      if (!resume) flag = false;
+    }
+
     let result2 = await runner.getDebugBtnState('Pause');
     expect(result2).toBe(false);
     let result3 = await runner.getDebugBtnState('StepOver');
